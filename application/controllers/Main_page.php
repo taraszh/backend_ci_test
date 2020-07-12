@@ -51,29 +51,33 @@ class Main_page extends MY_Controller
         return $this->response_success(['post' => $posts]);
     }
 
-    public function comment($post_id, $message)
+    public function comment()
     {
-        // or can be App::get_ci()->input->post('news_id') , but better for GET REQUEST USE THIS ( tests )
-
-        if (!User_model::is_logged()){
+        if (!User_model::is_logged()) {
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
         }
 
-        $post_id = intval($post_id);
+        $this->fill_global_post_with_input_stream();
+        $this->load->library('form_validation');
 
-        if (empty($post_id) || empty($message)){
-            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        if (!$this->form_validation->run('comment')) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
         }
 
-        try
-        {
-            $post = new Post_model($post_id);
+        try {
+            $post = new Post_model($_POST['post_id']);
         } catch (EmeraldModelNoDataException $ex){
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
         }
 
+        Comment_model::create([
+            'user_id' => User_model::get_user()->get_id(),
+            'assign_id' => $_POST['post_id'],
+            'text' => $_POST['text'],
+        ]);
 
-        $posts =  Post_model::preparation($post, 'full_info');
+        $posts = Post_model::preparation($post, 'full_info');
+
         return $this->response_success(['post' => $posts]);
     }
 
@@ -82,11 +86,8 @@ class Main_page extends MY_Controller
         $this->fill_global_post_with_input_stream();
         $this->load->library('form_validation');
 
-        if ($this->form_validation->run('auth') === FALSE) {
-            return $this->response_error(
-                CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,
-                $this->form_validation->error_array()
-            );
+        if (!$this->form_validation->run('auth')) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
         }
 
         $user = User_model::get_user_by_email(trim($_POST['login']));
@@ -103,7 +104,7 @@ class Main_page extends MY_Controller
     public function logout()
     {
         Login_model::logout();
-        redirect(site_url('/'));
+        redirect(site_url('/', 'http'));
     }
 
     public function add_money()

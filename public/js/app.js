@@ -62,10 +62,17 @@ var app = new Vue({
 					password: self.pass
 				})
 					.then(function (response) {
-						setTimeout(function () {
+						console.log(response);
+						if (response.data.status === 'error') {
+							alert(response.data.error_message)
+							self.pass = ''
+						} else {
 							$('#loginModal').modal('hide');
-						}, 500);
-					})
+							setTimeout(function () {
+								location.reload();
+							}, 500);
+						}
+					});
 			}
 		},
 		fiilIn: function () {
@@ -120,6 +127,25 @@ var app = new Vue({
 						}, 500);
 					}
 				})
+		},
+		addComment: function (post_id) {
+			let self = this;
+			if(self.commentText !== '') {
+				axios.post('/main_page/comment', {
+					'post_id': post_id,
+					'text': self.commentText
+				})
+					.then(function (response) {
+						if (response.data.status === 'error') {
+							alert(response.data.error_message)
+						} else {
+							self.commentText = '';
+							self.openPost(post_id);
+						}
+					});
+			} else {
+				alert("Comment text cannot be empty")
+			}
 		}
 	}
 });

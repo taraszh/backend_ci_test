@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | environments.
 |
 */
-$config['base_url'] =  'https://'. DOMAIN;
+$config['base_url'] =  'http://'. DOMAIN; // to be able work on localhost without configuring ssl
 
 /*
 |--------------------------------------------------------------------------
@@ -418,7 +418,7 @@ $config['standardize_newlines'] = FALSE;
 |          for backwards compatibility purposes!
 |
 */
-$config['global_xss_filtering'] = FALSE;
+$config['global_xss_filtering'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------

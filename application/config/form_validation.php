@@ -13,4 +13,16 @@ $config = [
             'rules' => 'required|max_length[32]'
         ]
     ],
+    'comment' => [
+        [
+            'field' => 'post_id',
+            'label' => 'Int Field post id',
+            'rules' => 'required|integer'
+        ],
+        [
+            'field' => 'text',
+            'label' => 'Text Field Password',
+            'rules' => 'required|max_length[255]'
+        ]
+    ],
 ];

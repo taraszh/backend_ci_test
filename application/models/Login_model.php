@@ -4,7 +4,6 @@ class Login_model extends CI_Model {
     public function __construct()
     {
         parent::__construct();
-
     }
 
     public static function logout()
@@ -22,6 +21,5 @@ class Login_model extends CI_Model {
 
         App::get_ci()->session->set_userdata('id', $user_id);
     }
-
 
 }

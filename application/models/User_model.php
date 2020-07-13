@@ -174,7 +174,7 @@ class User_model extends CI_Emerald_Model {
     /**
      * @return float
      */
-    public function get_wallet_total_withdrawn(): float
+    public function get_wallet_total_withdrawn(): ?float
     {
         return $this->wallet_total_withdrawn;
     }

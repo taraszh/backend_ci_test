@@ -52,6 +52,10 @@ class Main_page extends MY_Controller
         return $this->response_success(['post' => $posts]);
     }
 
+    /**
+     * @return object|string|void
+     * @throws Exception
+     */
     public function comment()
     {
         if (!User_model::is_logged()) {
@@ -81,6 +85,10 @@ class Main_page extends MY_Controller
         return $this->response_success(['post' => $posts]);
     }
 
+    /**
+     * @return object|string|void
+     * @throws CriticalException
+     */
     public function login()
     {
         $this->fill_global_post_with_input_stream();
@@ -106,6 +114,9 @@ class Main_page extends MY_Controller
         redirect(site_url('/', 'http'));
     }
 
+    /**
+     * @return object|string|void
+     */
     public function add_money()
     {
         if (!User_model::is_logged()) {
@@ -133,12 +144,58 @@ class Main_page extends MY_Controller
         return $this->response_success(['amount' => $balance]);
     }
 
+    /**
+     * @return object|string|void
+     */
     public function buy_boosterpack()
     {
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1,55)]);
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+
+        $this->fill_global_post_with_input_stream();
+
+        $id = $_POST['id'];
+        if (!$this->form_validation->run('boosterpack') || !in_array($id, [1,2,3])) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
+        }
+
+        $this->load->model('Boosterpack_model');
+
+        try {
+            $pack = new Boosterpack_model($id);
+        } catch (EmeraldModelNoDataException $ex){
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        $user = User_model::get_user();
+
+        if ($user->get_wallet_balance() < $pack->get_price()) {
+            return $this->response_error('err_not_enough_dollars');
+        }
+
+        $balance   = $user->get_wallet_balance() - $pack->get_price();
+        $withdrawn = ($user->get_wallet_total_withdrawn() ?? 0) + $pack->get_price();
+        $amount    = rand(1, $pack->get_price());
+        $bank      = $pack->get_price() - $amount;
+        $likes     = $user->get_likes_total() + $amount;
+
+        $this->s->start_trans();
+
+        $user->set_wallet_balance($balance);
+        $user->set_wallet_total_withdrawn($withdrawn);
+        $user->set_likes_total($likes);
+        $pack->set_bank($bank);
+
+        $this->s->commit();
+
+        return $this->response_success(['amount' => $amount]);
     }
 
+    /**
+     * @return object|string|void
+     * @throws Exception
+     */
     public function like()
     {
         if (!User_model::is_logged()) {

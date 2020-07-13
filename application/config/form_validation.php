@@ -44,4 +44,11 @@ $config = [
             'rules' => 'required|greater_than[0]|numeric'
         ],
     ],
+    'boosterpack' => [
+        [
+            'field' => 'id',
+            'label' => 'Int Field id',
+            'rules' => 'required|integer'
+        ],
+    ],
 ];

@@ -135,11 +135,15 @@ var app = new Vue({
 				id: id,
 			})
 				.then(function (response) {
-					self.amount = response.data.amount
-					if(self.amount !== 0){
-						setTimeout(function () {
-							$('#amountModal').modal('show');
-						}, 500);
+					if (response.data.status === 'error') {
+						alert(response.data.error_message)
+					} else {
+						self.amount = response.data.amount
+						if(self.amount !== 0){
+							setTimeout(function () {
+								$('#amountModal').modal('show');
+							}, 500);
+						}
 					}
 				})
 		},

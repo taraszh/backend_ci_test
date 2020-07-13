@@ -8,6 +8,11 @@ class MY_Controller extends CI_Controller
     const HTTP_FORBIDDEN = 403;
     const HTTP_SERVER_ERROR = 500;
 
+    const LIKE_TYPE_COMMENT = 'comment';
+    const LIKE_TYPE_POST = 'post';
+
+    const NO_LIKES_ERR_MSG = 'You have no more likes, please ...';
+
     public function __construct()
     {
         parent::__construct();

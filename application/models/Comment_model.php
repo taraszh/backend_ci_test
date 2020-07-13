@@ -87,6 +87,24 @@ class Comment_model extends CI_Emerald_Model
         return $this->save('text', $text);
     }
 
+    /**
+     * @return int
+     */
+    public function get_likes()
+    {
+        return $this->likes ?? 0;
+    }
+
+    /**
+     * @param int $likes
+     *
+     * @return bool
+     */
+    public function set_likes(int $likes)
+    {
+        $this->likes = $likes;
+        return $this->save('likes', $likes);
+    }
 
     /**
      * @return string
@@ -127,14 +145,6 @@ class Comment_model extends CI_Emerald_Model
     }
 
     // generated
-
-    /**
-     * @return mixed
-     */
-    public function get_likes()
-    {
-        return $this->likes;
-    }
 
     /**
      * @return mixed
@@ -242,7 +252,7 @@ class Comment_model extends CI_Emerald_Model
 
             $o->user = User_model::preparation($d->get_user(),'main_page');
 
-            $o->likes = rand(0, 25);
+            $o->likes = $d->get_likes();
 
             $o->time_created = $d->get_time_created();
             $o->time_updated = $d->get_time_updated();

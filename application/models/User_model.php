@@ -28,6 +28,8 @@ class User_model extends CI_Emerald_Model {
     protected $wallet_total_refilled;
     /** @var float */
     protected $wallet_total_withdrawn;
+    /** @var int */
+    protected $likes_total;
     /** @var string */
     protected $time_created;
     /** @var string */
@@ -189,6 +191,25 @@ class User_model extends CI_Emerald_Model {
     }
 
     /**
+     * @return int|null
+     */
+    public function get_likes_total()
+    {
+        return $this->likes_total;
+    }
+
+    /**
+     * @param int $likes_total
+     *
+     * @return bool
+     */
+    public function set_likes_total(int $likes_total): bool
+    {
+        $this->likes_total = $likes_total;
+        return $this->save('likes_total', $likes_total);
+    }
+
+    /**
      * @return string
      */
     public function get_time_created(): string
@@ -326,6 +347,8 @@ class User_model extends CI_Emerald_Model {
 
             $o->personaname = $data->get_personaname();
             $o->avatarfull = $data->get_avatarfull();
+
+            $o->likes = $data->get_likes_total() ?? 0;
 
             $o->time_created = $data->get_time_created();
             $o->time_updated = $data->get_time_updated();

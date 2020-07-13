@@ -33,7 +33,6 @@ class Main_page extends MY_Controller
 
     public function get_post($post_id)
     {
-        // or can be $this->input->post('news_id') , but better for GET REQUEST USE THIS
         $post_id = intval($post_id);
 
         if (empty($post_id)) {
@@ -121,8 +120,47 @@ class Main_page extends MY_Controller
 
     public function like()
     {
-        // todo: add like post\comment logic
-        return $this->response_success(['likes' => rand(1,55)]); // Колво лайков под постом \ комментарием чтобы обновить
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+
+        $this->fill_global_post_with_input_stream();
+        $this->load->library('form_validation');
+
+        if (!$this->form_validation->run('likes')) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
+        }
+
+        $user = User_model::get_user();
+
+        if (!$user->get_likes_total()) {
+            return $this->response_error(self::NO_LIKES_ERR_MSG);
+        }
+
+        $this->s->start_trans();
+
+        $user->set_likes_total($user->get_likes_total() - 1);
+
+            try {
+                $post = new Post_model($_POST['id']);
+
+                // comment_id will be null in case if user throw like to post
+                if ($_POST['comment_id']) {
+                    $comment = new Comment_model($_POST['comment_id']);
+                    $comment->set_likes($comment->get_likes() + 1);
+                } else {
+                    $post->set_likes($post->get_likes() + 1);
+                }
+
+            } catch (EmeraldModelNoDataException $ex){
+                $this->s->rollback();
+                return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+            }
+
+        $this->s->commit();
+
+        $posts = Post_model::preparation($post, 'full_info');
+        return $this->response_success(['post' => $posts]);
     }
 
 }

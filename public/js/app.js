@@ -105,12 +105,23 @@ var app = new Vue({
 					}
 				})
 		},
-		addLike: function (id) {
-			var self= this;
+		addLike: function (type, id, comment_id = null) {
+			var self = this;
 			axios
-				.get('/main_page/like')
+				.post('/main_page/like', {
+						'type': type,
+						'id': id,
+						'comment_id': comment_id,
+				})
 				.then(function (response) {
-					self.likes = response.data.likes;
+					if (response.data.status === 'error') {
+						alert(response.data.error_message)
+					} else {
+						self.post = response.data.post;
+						setTimeout(function () {
+							$('#postModal').modal('show');
+						}, 500);
+					}
 				})
 
 		},

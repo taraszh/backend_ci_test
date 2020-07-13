@@ -25,4 +25,16 @@ $config = [
             'rules' => 'required|max_length[255]'
         ]
     ],
+    'likes' => [
+        [
+            'field' => 'type',
+            'label' => 'Int Field post id',
+            'rules' => 'required|in_list[' . MY_Controller::LIKE_TYPE_COMMENT . ',' . MY_Controller::LIKE_TYPE_POST . ']'
+        ],
+        [
+            'field' => 'id',
+            'label' => 'Text Field Password',
+            'rules' => 'required|integer'
+        ]
+    ],
 ];

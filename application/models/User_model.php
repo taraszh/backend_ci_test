@@ -134,9 +134,9 @@ class User_model extends CI_Emerald_Model {
     }
 
     /**
-     * @return float
+     * @return float|null
      */
-    public function get_wallet_balance(): float
+    public function get_wallet_balance(): ?float
     {
         return $this->wallet_balance;
     }

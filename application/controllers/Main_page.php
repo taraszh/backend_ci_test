@@ -11,6 +11,8 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('Login_model');
         App::get_ci()->load->model('Post_model');
 
+        $this->load->library('form_validation');
+
         if (is_prod())
         {
             die('In production it will be hard to debug! Run as development environment!');
@@ -57,7 +59,6 @@ class Main_page extends MY_Controller
         }
 
         $this->fill_global_post_with_input_stream();
-        $this->load->library('form_validation');
 
         if (!$this->form_validation->run('comment')) {
             return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
@@ -83,7 +84,6 @@ class Main_page extends MY_Controller
     public function login()
     {
         $this->fill_global_post_with_input_stream();
-        $this->load->library('form_validation');
 
         if (!$this->form_validation->run('auth')) {
             return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
@@ -108,8 +108,29 @@ class Main_page extends MY_Controller
 
     public function add_money()
     {
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1,55)]);
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+
+        $this->fill_global_post_with_input_stream();
+
+        if (!$this->form_validation->run('money')) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
+        }
+
+        $user = User_model::get_user();
+
+        $balance = ($user->get_wallet_balance() ?? 0) + $_POST['sum'];
+        $total = ($user->get_wallet_total_refilled() ?? 0) + $_POST['sum'];
+
+        $this->s->start_trans();
+
+        $user->set_wallet_balance($balance);
+        $user->set_wallet_total_refilled($total);
+
+        $this->s->commit();
+
+        return $this->response_success(['amount' => $balance]);
     }
 
     public function buy_boosterpack()
@@ -125,7 +146,6 @@ class Main_page extends MY_Controller
         }
 
         $this->fill_global_post_with_input_stream();
-        $this->load->library('form_validation');
 
         if (!$this->form_validation->run('likes')) {
             return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS,);
@@ -144,7 +164,7 @@ class Main_page extends MY_Controller
             try {
                 $post = new Post_model($_POST['id']);
 
-                // comment_id will be null in case if user throw like to post
+                // comment_id will be null in case if user likes to post not a comment
                 if ($_POST['comment_id']) {
                     $comment = new Comment_model($_POST['comment_id']);
                     $comment->set_likes($comment->get_likes() + 1);

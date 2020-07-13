@@ -86,9 +86,14 @@ var app = new Vue({
 					sum: self.addSum,
 				})
 					.then(function (response) {
-						setTimeout(function () {
-							$('#addModal').modal('hide');
-						}, 500);
+						if (response.data.status === 'error') {
+							alert(response.data.error_message)
+						} else {
+							alert("Total balance: " + response.data.amount)
+							setTimeout(function () {
+								$('#addModal').modal('hide');
+							}, 500);
+						}
 					})
 			}
 		},
@@ -105,11 +110,10 @@ var app = new Vue({
 					}
 				})
 		},
-		addLike: function (type, id, comment_id = null) {
+		addLike: function (id, comment_id = null) {
 			var self = this;
 			axios
 				.post('/main_page/like', {
-						'type': type,
 						'id': id,
 						'comment_id': comment_id,
 				})
